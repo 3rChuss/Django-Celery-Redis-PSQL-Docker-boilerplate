@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: apps/docker/backend/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./apps/backend/.env
+    volumes:
+      - ./apps/backend:/app/backend
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/docker/backend/Dockerfile
+    entrypoint: /apps/backend/worker-entrypoint.sh
+    env_file:
+      - ./apps/backend/.env
+    volumes:
+      - ./apps/backend:/app/backend
+    depends_on:
+      - backend
+      - redis
+
+  db:
+    container_name: db
+    image: postgres:16.2-alpine3.18
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./apps/backend/.env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: apps/docker/frontend/Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./apps/frontend/.env
+    volumes:
+      - node_modules:/app/frontend/node_modules
+    depends_on:
+      - backend
+
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: apps/docker/nginx/Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - static:/apps/backend/static
+    depends_on:
+      - db
+      - frontend
+      - backend
+
+volumes:
+  db-data:
+  node_modules:
+  static:

@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  title: Backend API
+  version: 0.1.0
+  description: API for backend project
+paths:
+  /api/create/:
+    post:
+      operationId: api_create_create
+      tags:
+      - api
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          description: No response body
+  /api/hello/:
+    get:
+      operationId: api_hello_retrieve
+      tags:
+      - api
+      security:
+      - basicAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
